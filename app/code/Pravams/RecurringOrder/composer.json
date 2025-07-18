@@ -1,0 +1,26 @@
+{
+  "name": "pravams/recurringorder",
+  "description": "Recurring Order extension for subscription orders",
+  "type": "magento2-module",
+  "version": "1.0.11",
+  "license": [
+    "OSL-3.0"
+  ],
+  "require": {
+    "php": "~8.3.0||~8.4.0"
+  },
+  "authors":[
+        {
+            "name": "Prashant Mishra",
+            "email": "pravams@gmail.com",
+            "homepage": "https://pravams.blog/",
+            "role": "Developer"
+        }
+  ],
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "Pravams\\RecurringOrder\\": ""
+    }
+  }
+}

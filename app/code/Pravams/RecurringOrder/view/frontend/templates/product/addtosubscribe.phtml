@@ -1,0 +1,29 @@
+<?php
+$_product = $block->getProduct();
+if ($_product->getTypeId() == "simple") {
+    ?>
+    <style>
+        .add-to-subscribe{
+            padding: 6px;
+            color: white !important;
+            background-color: green;
+            border: 1px solid green;
+            border-radius: 6px;
+        }
+        .product-social-links {
+            padding-top: 12px;
+        }
+    </style>
+    <a href="#" class="add-to-subscribe" onclick="createSubscription()">Add to Subscription</a>
+    <script type="text/javascript">
+    function createSubscription(){
+        var orgAction = document.getElementById("product_addtocart_form").action;
+        document.getElementById("product_addtocart_form").action="<?= $block->escapeUrl($block->getUrl('RecurringOrder/index/add'))?>";
+        document.getElementById("product_addtocart_form").method="POST";
+        document.getElementById("product_addtocart_form").submit();
+        //document.getElementById("product_addtocart_form").action=orgAction;
+    }
+    </script>
+    <?php
+}
+?>

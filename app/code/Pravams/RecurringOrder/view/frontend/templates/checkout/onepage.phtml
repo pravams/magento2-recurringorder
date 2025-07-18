@@ -1,0 +1,629 @@
+<title>RecurringOrder Checkout</title>
+<style type="text/css">
+    .table-checkout-shipping-method tbody td {padding-left: 12px;}
+    .opc-block-summary .minicart-items-wrapper {overflow: hidden;}
+    .box-subscription-xy{float:left; width:100%;padding: 10px;}
+    .box-left-subscription{float:left;width:50%;padding-top: 5px;}
+    .box-right-subscription{float:right;width:50%;padding-top: 5px;}
+    .opc-progress-bar-item._complete {cursor: text;}
+</style>
+<div id="checkout" data-bind="scope:'checkout'" class="checkout-container">
+<ul class="opc-progress-bar">
+    <li class="opc-progress-bar-item _active" >
+        <span>Shipping</span>
+    </li>
+    <li class="opc-progress-bar-item" >
+        <span>Review &amp; Payments</span>
+    </li>
+</ul>
+<?php $msquote = $block->getMsQuote();?>
+<?php $msquoteItems = $block->getMsQuoteItems($msquote->getId());?>
+<?php $msquoteAddress = $block->getMsQuoteAddress();?>
+                                        
+<div class="opc-estimated-wrapper" >
+    <div class="estimated-block">
+        <span class="estimated-label">Estimated Total</span>
+        <span class="estimated-price"><?= /* @noEscape */ $block->displayPrice($msquote->getGrandTotal());?></span>
+    </div>
+    <div class="minicart-wrapper">
+        <button type="button" class="action showcart" data-toggle="opc-summary">
+            <span class="counter qty">
+                <span class="counter-number"><?= count($msquoteItems)?></span>
+            </span>
+        </button>
+    </div>
+</div>
+
+<div data-role="checkout-messages" class="messages">
+</div>
+<div class="opc-wrapper">
+    <ol class="opc" id="checkoutSteps">
+        <li id="shipping" class="checkout-shipping-address">
+            <div class="step-title" data-role="title">Shipping Address</div>
+            <div id="checkout-step-shipping" class="step-content" data-role="content">
+                <div class="field addresses">
+                    <div class="control">
+                        <div class="shipping-address-items">
+                            <?php
+                            $addresses = $block->getCustomerAddress();
+                            if (count($addresses) > 0) {
+                                $allOptions = "";
+                                $allOptionsDisp = "";
+                                foreach ($addresses as $_address) { ?>
+                                    <div class="shipping-address-item not-selected-item">
+                                        <?= /* @noEscape */ $_address->getFirstName() ." ". /* @noEscape */ $_address->getLastName() ?><br />
+                                        <?php $streets = $_address->getStreet();
+                                            $streetAdd = "";
+                                        foreach ($streets as $street) {
+                                            $streetAdd = $streetAdd." ".$street;
+                                        }
+                                        ?> <?= /* @noEscape */ $streetAdd;
+                                        ?><br />
+                                        <?= /* @noEscape */ $_address->getCity()?>, <span><?= /* @noEscape */ $_address->getRegion()->getRegion();?></span>  <?= /* @noEscape */ $_address->getPostCode();?><br />
+                                        <?= /* @noEscape */ $_address->getCountryId();?><br />
+                                        <a href="tel: <?= /* @noEscape */ $_address->getTelephone();?>"><?= /* @noEscape */ $_address->getTelephone();?></a>
+                                        <br />
+                                        <button type="button" class="action action-select-shipping-item" address-id="<?= /* @noEscape */ $_address->getId()?>">
+                                            <span>Ship Here</span>
+                                        </button>
+                                    </div>
+                                    <?php
+                                    $allOptions .= "<option value=\"".$_address->getId()."\">".$_address->getFirstName() ." ".$_address->getLastName().", ".$streetAdd.", ".$_address->getCity().", ".$_address->getRegion()->getRegion()." ".$_address->getPostCode().", ".$_address->getCountryId()."</option>";
+                                    $allOptionsDisp .="<div id=\"all_customer_address_disp_each_".$_address->getId()."\">".$_address->getFirstName() ." ".$_address->getLastName()."<br />".$streetAdd."<br />".$_address->getCity()."<span>".$_address->getRegion()->getRegion()."</span>".$_address->getPostCode()."<br />".$_address->getCountryId()."<br /> <a href=\"tel: ".$_address->getTelephone()."\">".$_address->getTelephone()."</a><br /></div>";
+                                }
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="action action-show-popup">
+                    <span data-bind="i18n: 'New Address'">New Address</span>
+                </button>
+                <div id="opc-new-shipping-address" style="display: none;"></div>
+            </div>
+            <?php if (count($addresses) > 0) {?>
+            <div id="all_customer_address_disp" style="display:none;"><?= /* @noEscape */ $allOptionsDisp;?></div>
+            <select name="all_customer_addresses" id="all_customer_addresses" style="display:none">
+                <?= /* @noEscape */ $allOptions;?>
+            </select>
+            <?php }?>
+        </li>
+
+<!-- Shipping method template-->
+        <li id="opc-shipping_method" class="checkout-shipping-method" role="presentation">
+            <div class="checkout-shipping-method">
+                <div class="step-title" data-role="title">Shipping Methods</div>
+                <div class="shipping-policy-block field-tooltip" style="display: none;">
+                    <span class="field-tooltip-action" tabindex="0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                        <span>See our Shipping Policy</span>
+                    </span>
+                    <div class="field-tooltip-content" data-target="dropdown" aria-hidden="true">
+                        <span></span>
+                    </div>
+                </div>
+                <div id="checkout-step-shipping_method" class="step-content">
+                    <form id="co-shipping-method-form" class="form methods-shipping" novalidate="novalidate" action="<?= $block->escapeUrl($block->getUrl('RecurringOrder/checkout/shippingAddress/'))?>" method="POST">
+                        <input type="hidden" value="" id="selected-shipping-address" name="selected-shipping-address"/>
+                        <input name="shipping_carrier_title" id="shipping_carrier_title" type="hidden" value="" />
+                        <input name="shipping_method_title" id="shipping_method_title" type="hidden" value="" />
+                        <div id="checkout-shipping-method-load">
+                            <table class="table-checkout-shipping-method">
+                                <thead>
+                                    <tr class="row">
+                                        <th class="col col-method" >Select Method</th>
+                                        <th class="col col-price" >Price</th>
+                                        <th class="col col-method" >Method Title</th>
+                                        <th class="col col-carrier" >Carrier Title</th>
+                                    </tr>
+                                </thead>    
+                            </table>
+                        </div>
+                        <div id="onepage-checkout-shipping-method-additional-load">
+                        </div>
+                        <div class="actions-toolbar" id="shipping-method-buttons-container">
+                            <div class="primary">
+                                <button data-role="opc-continue" type="button" class="button action continue primary">
+                                    <span >Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </li>
+        <form id="co-payment-form" class="form payments" novalidate="novalidate">
+        <li id="RecurringOrder" role="presentation" class="checkout-payment-method" style="display: none;width:50%;">
+            <div id="checkout-step-payment" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">                
+                    <fieldset class="fieldset">
+                        <legend class="legend">
+                            <span>Subscription Information</span>
+                        </legend><br>
+                        <div id="checkout-RecurringOrder-method-load" class="opc-payment">
+                            <div class="field _required">
+                                <label class="label">
+                                    <span>Susbcription Name</span>
+                                </label>
+                                <div class="control">
+                                    <input class="input-text" name="subscription_name" id="subscription_name" aria-required="true" aria-invalid="false" type="text">
+                                </div>
+                            </div>
+                            <div class="field _required">
+                                <label class="label">
+                                    <span>Susbcription Type</span>
+                                </label>
+                                <div class="control">
+                                    <select class="select" name="subscription_type" id="subscription_type" aria-required="true" aria-invalid="false">
+                                        <option value="">Select</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                        <option value="everyxy">Every X interval Y(days,week,month,year)</option>
+                                    </select>
+                                </div>
+                                <div class="box-subscription-xy" id="box-subscription-xy" style="display: none;">
+                                    <div class="box-left-subscription">X: </div>
+                                    <div class="box-right-subscription"><input name="subscription_x" id="subscription_x" type="text"></div>
+                                    <div class="box-left-subscription">Y: </div>
+                                    <div class="box-right-subscription">
+                                        <select name="subscription_y" id="subscription_y"><option value="">Select</option><option value="day">day</option><option value="week">week</option><option value="month">month</option><option value="year">year</option></select>
+                                        <div>(Example: For X=2, Y=week would mean that Order should be placed Every 2 week from start date)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field _required">
+                                <label class="label">
+                                    <span>Susbcription Start Date</span>
+                                </label>
+                                <div class="control">
+                                    <input class="input-text" name="subscription_start_date" id="subscription_start_date" aria-required="true" aria-invalid="false" type="date">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+            </div>
+        </li>
+        <li id="payment" role="presentation" class="checkout-payment-method" style="display: none;">
+            <div id="checkout-step-payment" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">                
+                    <fieldset class="fieldset">
+                        <legend class="legend">
+                            <span>Payment Information</span>
+                        </legend><br>
+                        <div id="checkout-payment-method-load" class="opc-payment">
+                            <div class="payment-group" data-repeat-index="0">
+                                
+
+                            </div>
+                            <input type="hidden" name="payment_method_title" id="payment_method_title"/>
+                        </div>
+                        <!--<div class="no-quotes-block" style="display: none;">
+                            <span>No Payment method available.</span>
+                        </div>-->
+                    </fieldset>
+            </div>
+        </li>
+        </form>
+    </ol>
+</div>
+
+<aside role="dialog" class="modal-custom opc-sidebar opc-summary-wrapper custom-slide" aria-describedby="modal-content-5" data-role="modal" data-type="custom" tabindex="0">
+    <div data-role="focusable-start" tabindex="0"></div>
+    <div class="modal-inner-wrap" data-role="focusable-scope">
+        <header class="modal-header">
+            <button class="action-close" data-role="closeBtn" type="button">
+                <span>Close</span>
+            </button>
+        </header>
+        <div id="modal-content-5" class="modal-content" data-role="content">
+            <div id="opc-sidebar">
+                <div class="opc-block-summary" >
+                    <span class="title">Order Summary</span>
+                    <table class="data table table-totals">
+                        <caption class="table-caption">Order Summary</caption>
+                        <tbody>
+                            <tr class="totals sub">
+                                <th class="mark" scope="row">Cart Subtotal</th>
+                                <td class="amount">
+                                    <?= /* @noEscape */ $block->displayPrice($msquote->getSubtotal());?>
+                                </td>
+                            </tr>
+                                <tr class="totals shipping excl">
+                                    <th class="mark" scope="row">
+                                        <span class="label" >Shipping</span>
+                                        <span class="value"></span>
+                                    </th>
+                                    <td class="amount">
+                                        <?php if ($msquoteAddress->getShippingMethod() == '') {?>
+                                                <span class="not-calculated" data-th="Shipping">Not yet calculated</span>
+                                        <?php } else {
+                                             ?>
+                                            <?= /* @noEscape */ $block->displayPrice($msquoteAddress->getShippingAmount());
+                                        }
+                                        ?>
+                                        
+                                        
+                                    </td>
+                                </tr>
+                                <tr class="totals-tax">
+                                    <th class="mark" scope="row">Tax</th>
+                                    <td class="amount" data-th="Tax">
+                                        <?php if ($msquote->getBaseSubtotal() == '') {?>
+                                                <span class="not-calculated" data-th="Shipping">Not yet calculated</span>
+                                        <?php } else {
+                                           ?> <?=  /* @noEscape */ $block->displayPrice($msquote->getBaseSubtotal());
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                            <tr class="grand totals">
+                                <th class="mark" scope="row">
+                                    <strong>Order Total</strong>
+                                </th>
+                                <td class="amount" data-th="Order Total">
+                                    <strong><?= /* @noEscape */ $block->displayPrice($msquote->getGrandTotal());?></strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="block" data-collapsible="true" role="tablist">
+                        <div class="title" data-role="title" role="tab" aria-selected="false" aria-expanded="true" tabindex="0">
+                            <strong role="heading">
+                                <span><?= count($msquoteItems)?></span>
+                                <span>Items in Cart</span>
+                            </strong>
+                        </div>
+                        <div class="content minicart-items" data-role="content" role="tabpanel" aria-hidden="false">
+                            <div class="minicart-items-wrapper overflowed">
+                                <ol class="minicart-items">
+                                    <?php foreach ($msquoteItems as $_msquoteItem) {?>
+                                    <li class="product-item">
+                                        <div class="product">
+                                        <span class="product-image-container" style="height: 75px; width: 75px;">
+                                            <span class="product-image-wrapper">
+                                                <img src="<?= /* @noEscape */ $_msquoteItem->getImage();?>" alt="<?= /* @noEscape */ $_msquoteItem->getName();?>" height="75" width="75">
+                                            </span>
+                                        </span>
+                                        <div class="product-item-details">
+                                            <div class="product-item-inner">
+                                                <div class="product-item-name-block">
+                                                    <strong class="product-item-name" ><?= /* @noEscape */ $_msquoteItem->getName();?></strong>
+                                                    <div class="details-qty">
+                                                        <span class="label"><span>Qty</span></span>
+                                                        <span class="value"><?= /* @noEscape */ round($_msquoteItem->getQty());?></span>
+                                                    </div>
+                                                </div>
+                                        <div class="subtotal">
+                                            <span class="price-excluding-tax" data-label="Excl. Tax">
+                                            <span class="cart-price">
+                                                <?= /* @noEscape */ $block->displayPrice($_msquoteItem->getRowTotal());?>
+                                            </span>
+                                            </span>
+                                        </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </li>    
+                                    <?php }?>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="opc-block-shipping-information">
+                    <div class="shipping-information">
+                        <div class="ship-to">
+                            <div class="shipping-information-title">
+                                <span>Ship To:</span>
+                                <button class="action action-edit">
+                                    <span>edit</span>
+                                </button>
+                            </div>
+                            <div class="shipping-information-content" id="shipping-information-content-address">
+                                
+                            </div>
+                        </div>
+                        <div class="ship-via">
+                            <div class="shipping-information-title">
+                                <span>Shipping Method:</span>
+                                <button class="action action-edit">
+                                    <span>edit</span>
+                                </button>
+                            </div>
+                            <div class="shipping-information-content" id="shipping-information-content-method">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-role="focusable-end" tabindex="0"></div>
+</aside>
+
+    
+</div>
+
+<script type="text/javascript">
+requirejs(['jquery'], function(jQuery){
+    jQuery(function(){
+        showShippingPage();
+        
+        // select the shipping address
+        jQuery('.action-select-shipping-item').click(function(){
+           jQuery('.shipping-address-items').children('div').each(function(){
+                jQuery(this).removeClass('selected-item');
+                jQuery(this).addClass('not-selected-item');
+           });
+           jQuery(this).parent().removeClass('not-selected-item');
+           jQuery(this).parent().addClass('selected-item');
+           var addressId = jQuery(this).attr('address-id');
+           jQuery('#selected-shipping-address').val(addressId);
+           
+            var sendInfo = { addressId: addressId };
+            jQuery.ajax({
+               type: "POST",
+               //url: "<?php //echo $this->getUrl('rest/default/V1/carts/mine/') ?>estimate-shipping-methods-by-address-id",
+               url: "<?= $block->escapeUrl($block->getUrl('RecurringOrder/checkout/shippingMethod')) ?>?addressId="+addressId,
+               dataType: "json",
+               contentType: 'application/json',
+               beforeSend: function(){
+                   var loadingImage="<img src=\"<?= $block->escapeUrl($block->getViewFileUrl('images/loader-1.gif')) ?>\" alt=\"<?= $block->escapeUrl(__('Loading...')) ?>\" style=\"position: absolute;\">";
+                   jQuery(".table-checkout-shipping-method tbody").remove();
+                   jQuery(".table-checkout-shipping-method thead").append('<tbody><tr><td>'+loadingImage+'</td></tr></tbody>');
+               },
+               success: function (respData) {
+                   if (respData) {
+                       jQuery(".table-checkout-shipping-method tbody").remove();
+                       var markup = "<tbody>";
+                       var msg = respData.data.shipping_method;
+                       for(i=0;i<msg.length;i++){
+                           var methodName = msg[i].carrier_code+"_"+msg[i].method_code;
+                           markup = markup+"<tr class=\"row\" ><td class=\"col col-method\"><input class=\"radio\"  aria-labelledby=\"label_method_"+methodName+" label_carrier_"+methodName+"\" value=\""+methodName+"\" name=\"shipping_method\" type=\"radio\"></td><td class=\"col col-price\"><span class=\"price\">"+formatPrice(msg[i].amount)+"</span><input name=\""+methodName+"\" type=\"hidden\" value=\""+msg[i].amount+"\" /></td><td class=\"col col-method\"  id=\"label_method_"+methodName+"\">"+msg[i].method_title+"</td><td class=\"col col-carrier\" id=\"label_carrier_"+methodName+"\">"+msg[i].carrier_title+"</td></tr>";
+                       }
+                       markup = markup + "</tbody>";
+                       jQuery(".table-checkout-shipping-method thead").append(markup);
+                       
+                       // setting the shipping method
+                       jQuery('.radio').click(function(){
+                            var methodName = jQuery(this).val();
+                            var methodVal = '#label_method_'+methodName;
+                            var carrierVal = '#label_carrier_'+methodName;
+
+                            jQuery('#shipping_carrier_title').val(jQuery(methodVal).text());
+                            jQuery('#shipping_method_title').val(jQuery(carrierVal).text());
+                       });
+                       
+                        // adding the payment methods
+                        var addressId = jQuery('#selected-shipping-address').val();
+                        var billingAdd = jQuery('#all_customer_address_disp_each_'+addressId).html();
+                        var paymentMethods = respData.data.payment_method;
+                        var pmtHtml = "<div class=\"step-title\" data-role=\"title\">Payment Method:</div>";
+                        var alloptions = jQuery('#all_customer_addresses').html();
+                        var allowedPmMethods = ["cashondelivery", "banktransfer", "purchaseorder", "checkmo"];
+                        for(i=0;i<paymentMethods.length;i++){
+                            if(allowedPmMethods.indexOf(paymentMethods[i].code)>=0){
+                                pmtHtml = pmtHtml + "<div class=\"payment-method\"><div class=\"payment-method-title field choice\"><input name=\"payment_method\" class=\"radio\" id=\""+paymentMethods[i].code+"\" value=\""+paymentMethods[i].code+"\" type=\"radio\"><label class=\"label\" for=\""+paymentMethods[i].code+"\"><span>"+paymentMethods[i].title+"</span></label></div><div class=\"payment-method-content\" id=\"payment-method-content-"+paymentMethods[i].code+"\"><div data-role=\"checkout-messages\" class=\"messages\"></div><div class=\"payment-method-billing-address\"><div class=\"checkout-billing-address\"><div class=\"billing-address-same-as-shipping-block field choice\"><input name=\"billing-address-same-as-shipping\" id=\"billing-address-same-as-shipping-"+paymentMethods[i].code+"\" type=\"checkbox\"><label for=\"billing-address-same-as-shipping-"+paymentMethods[i].code+"\"><span>My billing and shipping address are the same</span></label></div><div class=\"billing-address-details\"><div class=\"billing-address-details-content\">"+billingAdd+" </div><button type=\"button\" class=\"action action-edit-address\" style=\"display: none;\"><span>Edit</span></button></div><fieldset class=\"fieldset\" style=\"display: none;\"><div class=\"field field-select-billing\"><label class=\"label\"><span>My billing and shipping address are the same</span></label><div class=\"control\"><select class=\"select\" name=\"billing_address_id_"+paymentMethods[i].code+"\">"+alloptions+"</select></div></div><div class=\"actions-toolbar\"><div class=\"primary\"><button class=\"action action-update\" type=\"button\"><span>Update</span></button><button class=\"action action-cancel\" type=\"button\"><span>Cancel</span></button></div></div></fieldset></div></div><p></p><div class=\"checkout-agreements-block\"><div data-role=\"checkout-agreements\"><div class=\"checkout-agreements\" style=\"display: none\"></div></div></div><div class=\"actions-toolbar\"><div class=\"primary\"><button class=\"action primary checkout\" type=\"button\" title=\"Place Subscription Order\"><span>Place Subscription Order</span></button></div></div></div></div>";
+                            }
+                        }
+                        jQuery(".payment-group").html(pmtHtml);
+                        jQuery('.payment-method-title input').click(function(){
+                            var pmMethod = this.value;
+                            var pmTitle = jQuery(this).parent().children('label').children('span').html();
+                            jQuery('#payment_method_title').val(pmTitle);
+                            jQuery('.payment-method-content').css('display','none');
+                            jQuery('#payment-method-content-'+pmMethod).css('display','block');
+                            jQuery('#billing-address-same-as-shipping-'+pmMethod).prop('checked', true);
+                            jQuery('.checkout-billing-address fieldset').css('display','none');
+                            jQuery('.billing-address-details').css('display','block');
+                            // set the default biiling address to shipping address
+                            var defAddId = jQuery('#selected-shipping-address').val();
+                            jQuery('#payment-method-content-'+pmMethod+' .select').val(defAddId);
+                        });
+                        jQuery('.billing-address-same-as-shipping-block input').click(function(){
+                           if(this.checked){
+                               jQuery('.checkout-billing-address fieldset').css('display','none');
+                               jQuery('.billing-address-details').css('display','block');
+                           }else{
+                               jQuery('.checkout-billing-address fieldset').css('display','block');
+                               jQuery('.billing-address-details').css('display','none');
+                           }
+                        });
+
+                        jQuery('.action-update').click(function(){
+                            var selPmMethod = jQuery("input[name=payment_method]:checked").val();
+                            var selAddId = jQuery('#payment-method-content-'+selPmMethod+' .select option:selected').val();
+                            var upAddress = jQuery('#all_customer_address_disp_each_'+selAddId).html();
+
+                            jQuery('#payment-method-content-'+selPmMethod+' .billing-address-details-content').html(upAddress);
+                            jQuery('.billing-address-details').css('display','block');
+                            jQuery('.checkout-billing-address fieldset').css('display','none');
+                            jQuery('#payment-method-content-'+selPmMethod+' .action-edit-address').css('display','block')
+                        });
+                        jQuery('.action-cancel').click(function(){
+                            jQuery('.billing-address-details').css('display','block');
+                            jQuery('.checkout-billing-address fieldset').css('display','none');
+                        });
+                        jQuery('.action-edit-address').click(function(){
+                            jQuery('.billing-address-details').css('display','none');
+                            jQuery('.checkout-billing-address fieldset').css('display','block');
+                        });
+                        // submitting the payment information for checkout
+                        jQuery('.checkout').click(function(){
+                            var pFlag=1;
+                            if(jQuery("input[name=payment_method]:checked").val() == 'undefined'){
+                                alert('Please select a payment method');
+                                pFlag=0;
+                                return false;
+                            }
+                            if(jQuery('#subscription_name').val() == ''){
+                                alert('Please provide Subscription Name');
+                                pFlag=0;
+                                return false;
+                            }
+                            if(jQuery('#subscription_type').val() == ''){
+                                alert('Please select Subscription Type');
+                                pFlag=0;
+                                return false;
+                            }
+                            if(jQuery('#subscription_start_date').val() == ''){
+                                alert('Please select Subscription Start Date');
+                                pFlag=0;
+                                return false;
+                            }
+                            if(jQuery('#subscription_type').val() == 'everyxy'){
+                                if( (jQuery('#subscription_x').val() == '') ||  (jQuery('#subscription_y').val() == '') ){
+                                    alert('Please select Subscription X and Y Values');
+                                    pFlag=0;
+                                    return false;
+                                }
+                                var subx = jQuery('#subscription_x').val();
+                                if(isNaN(subx)){
+                                    alert('Please select Subscription X value numeric');
+                                    pFlag=0;
+                                    return false;
+                                }
+                            }
+                            if(pFlag==1){
+                                loadPaymentSuccess();
+                            }
+                        });
+                   } else {
+                       alert("Error loading shipping method!");
+                   }
+               },
+               //data: JSON.stringify(sendInfo)
+               data: sendInfo
+            });
+        });
+        
+        // add new address
+        jQuery('.action-show-popup').click(function(){
+            window.location="<?= $block->escapeUrl($block->getUrl('customer/address/new/')) ?>"
+        });
+        
+        // submit the shipping form
+        jQuery('#shipping-method-buttons-container button').click(function(){
+            if(jQuery('.radio').length > 0){
+                var flag = 0;
+                jQuery.each(jQuery('.radio'), function(){
+                    if(this.checked == true){
+                        flag=1;
+                    }
+                });
+                if(flag==0){
+                    alert('Please select a shipping method.');
+                    return false;
+                }else if(jQuery('#selected-shipping-address').val()>0){
+                    //submit the form using ajax
+                    var loadingPage = "<div class=\"loading-mask\" data-role=\"loader\" style=\"display: block;\"><div class=\"loader\"><img alt=\"Loading...\" src=\"<?= $block->escapeUrl($block->getViewFileUrl('images/loader-2.gif')) ?>\"><p>Please wait...</p></div></div>";
+                    jQuery('.page-wrapper').prepend(loadingPage);
+                    var sendData = jQuery('#co-shipping-method-form').serialize();
+                    jQuery.ajax({
+                       type: "POST",
+                       url: "<?= $block->escapeUrl($block->getUrl('RecurringOrder/checkout/shippingAddress')) ?>",
+                       success: function (responseData) {
+                           jQuery('.loading-mask').css('display','none');
+                           showPaymentPage();
+                           var resDataAdd = jQuery.parseJSON(responseData);
+                           var resData = resDataAdd.address;
+                           var msquoteData = resDataAdd.msquote;
+                           var streetAddressList = jQuery.parseJSON(resData.street);
+                           var streetAddress = '';
+                           for(i=0;i<streetAddressList.length;i++){
+                               streetAddress = streetAddress + streetAddressList[i] + ' ';
+                           }
+                           jQuery('#shipping-information-content-address').html(resData.firstname+' '+resData.lastname+'<br\>'+streetAddress+'<br\>'+resData.city+', <span>'+resData.region+'</span> '+resData.postcode+'<br\>'+resData.country_id+'<br\><a href=\"tel:'+resData.telephone+'\">'+resData.telephone+'</a><br\>');
+                           jQuery('#shipping-information-content-method').html('<span class=\"value\">'+resData.shipping_description+'</span>');
+                           
+                           jQuery('.shipping td').html(formatPrice(resData.shipping_amount));
+                           jQuery('.totals-tax td').html(formatPrice(msquoteData.base_subtotal));
+                           jQuery('.grand td strong').html(formatPrice(msquoteData.grand_total));
+                           
+                           //var sendPmtData = resDataAdd.pmt_data;
+                           //loadPaymentMethods(sendPmtData, resData);
+                       },
+                       data: sendData
+                    });
+                }
+            }else{
+                alert('Please select a shipping address.');
+                return false;
+            }
+           
+        });
+        
+        jQuery('.shipping-information-title button').click(function(){
+            showShippingPage();
+        });
+        
+        jQuery('#subscription_type').change(function(){
+            if(jQuery(this).val()=='everyxy'){
+                jQuery('#box-subscription-xy').css('display','block');
+            }else{
+                jQuery('#box-subscription-xy').css('display','none');
+            }
+        });
+        
+    });
+});
+
+function showPaymentPage(){
+    i=0;
+    jQuery('.opc-progress-bar').children('li').each(function(){
+        if(i==0){
+            jQuery(this).removeClass('_active');
+            jQuery(this).addClass('_complete');
+        }else{
+            jQuery(this).addClass('_active');
+        }
+        i++;
+    });
+    //hide the shipping
+    jQuery('#shipping').css('display','none');
+    jQuery('#opc-shipping_method').css('display','none');
+    jQuery('#payment').css('display','block');
+    jQuery('.opc-block-shipping-information').css('display','block');
+    jQuery('#RecurringOrder').css('display','block');
+}
+
+function showShippingPage(){
+    i=0;
+    jQuery('.opc-progress-bar').children('li').each(function(){
+        if(i==1){
+            jQuery(this).removeClass('_active');
+        }else{
+            jQuery(this).addClass('_active');
+            jQuery(this).removeClass('_complete');
+        }
+        i++;
+    });
+    jQuery('#shipping').css('display','block');
+    jQuery('#opc-shipping_method').css('display','block');
+    jQuery('#payment').css('display','none');
+    jQuery('.opc-block-shipping-information').css('display','none');
+    jQuery('#RecurringOrder').css('display','none');
+}
+
+function loadPaymentSuccess(){
+    jQuery('.loading-mask').css('display','block');
+    var sendData = jQuery('#co-payment-form').serialize();
+    jQuery.ajax({
+       type: "POST",
+       url: "<?= $block->escapeUrl($block->getUrl('RecurringOrder/checkout/payment')) ?>",
+       success: function (responseData) {
+           jQuery('.loading-mask').css('display','none');
+           jQuery('#maincontent').html(responseData);
+       },
+       data: sendData
+    });
+}
+
+function formatPrice(price){
+    var defaultPrice = '<?= /* @noEscape */ $block->displayPrice("0.00");?>';
+    var defaultPriceMod = defaultPrice.replace("0.00",price);
+    
+    return defaultPriceMod;
+}
+</script>

@@ -1,0 +1,13 @@
+<?php
+$params = $block->getRequest()->getParams();
+$customerId = $params['id'];
+?>
+<input type="hidden" name="subscription_content" id="subscription_content" value="<?= $block->escapeUrl($block->getUrl('RecurringOrder/index/RecurringOrder/id/'.$customerId)) ?>" />
+<input type="hidden" name="subscription_loader" id="subscription_loader" value="<?= $block->escapeUrl($block->getViewFileUrl('images/loader-2.gif'));?>" />
+<script type="text/javascript">
+requirejs(['jquery'], function(jQuery){
+    jQuery(function(){
+        jQuery('.entry-edit.form-inline').append("<div id=\"RecurringOrder_content\" style=\"display:none;\"></div>");
+    });
+});
+</script>

@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration Schema/etc/schema.xsd">
+
+    <!--TABLE MSQUOTE -->
+
+    <table name="msquote" resource="default" engine="innodb" comment="RecurringOrder Quote">
+        <column xsi:type="int" name="entity_id" nullable="false" unsigned="true" identity="true" comment="Entity Id"/>
+        <column xsi:type="smallint" name="store_id" nullable="false" unsigned="true" default="0" comment="Store Id"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <column xsi:type="smallint" name="is_active" nullable="true" unsigned="true" default="0" comment="Is Active"/>
+        <column xsi:type="smallint" name="is_virtual" nullable="true" unsigned="true" default="0" comment="Is Virtual"/>
+        <column xsi:type="smallint" name="is_multishipping" nullable="true" unsigned="true" default="0" comment="Is Multi Shipping" />
+        <column xsi:type="int" name="items_count" nullable="true" unsigned="true" default="0" comment="Items Count" />
+        <column xsi:type="decimal" name="items_qty" scale="4" precision="12" default="0" comment="Items Qty" />
+        <column xsi:type="int" name="orig_order_id" nullable="true" unsigned="true" default="0" comment="Orig Order Id" />
+        <column xsi:type="decimal" name="store_to_base_rate" scale="4" precision="12" default="0" comment="Store To Base Rate" />
+        <column xsi:type="decimal" name="store_to_quote_rate" scale="4" precision="12" default="0" comment="Store To Quote Rate" />
+        <column xsi:type="varchar" name="base_currency_code" nullable="true" length="255" comment="Base Currency Code"  />
+        <column xsi:type="text" name="store_currency_code" nullable="true" comment="Store Currency Code" />
+        <column xsi:type="varchar" name="quote_currency_code" length="255" nullable="true" comment="Quote Currency Code" />
+        <column xsi:type="decimal" name="grand_total" scale="4" precision="12" default="0" comment="Grand Total" />
+        <column xsi:type="decimal" name="base_grand_total" scale="4" precision="12" default="0" comment="Base Grand Total" />
+        <column xsi:type="varchar" name="checkout_method" length="255" nullable="true" comment="Checkout Method" />
+        <column xsi:type="int" name="customer_id" nullable="true" unsigned="true" comment="Customer Id" />
+        <column xsi:type="int" name="customer_tax_class_id" nullable="true" unsigned="true" comment="Customer Tax Class Id" />
+        <column xsi:type="int" name="customer_group_id" nullable="true" default="0" unsigned="true" comment="Customer Group Id" />
+        <column xsi:type="varchar" name="customer_email" length="255" nullable="true" comment="Customer Email" />
+        <column xsi:type="varchar" name="customer_prefix" length="40" nullable="true" comment="Customer Prefix" />
+        <column xsi:type="varchar" name="customer_firstname" length="255" nullable="true" comment="Customer Firstname" />
+        <column xsi:type="varchar" name="customer_middlename" length="255"  nullable="true" comment="Customer Middlename" />
+        <column xsi:type="varchar" name="customer_lastname" length="255"  nullable="true" comment="Customer Lastname" />
+        <column xsi:type="varchar" name="customer_suffix" length="40"  nullable="true" comment="Customer Suffix" />
+        <column xsi:type="date" name="customer_dob" nullable="true" comment="Customer Dob" />
+        <column xsi:type="smallint" name="customer_is_guest" nullable="true" unsigned="true" default="0" comment="Customer Is Guest" />
+        <column xsi:type="varchar" name="applied_rule_ids" length="255"  nullable="true" comment="Applied Rule Ids" />
+        <column xsi:type="varchar" name="coupon_code" length="255"  nullable="true" comment="Coupon Code" />
+        <column xsi:type="varchar" name="global_currency_code" length="255" nullable="true" comment="Global Currency Code" />
+        <column xsi:type="decimal" name="base_to_global_rate" scale="4" precision="12" default="0" nullable="true" comment="Base To Global Rate" />
+        <column xsi:type="decimal" name="base_to_quote_rate" scale="4" precision="12" default="0" nullable="true" comment="Base To Quote Rate" />
+        <column xsi:type="varchar" name="customer_taxvat" length="255"  nullable="true" comment="Customer Taxvat" />
+        <column xsi:type="varchar" name="customer_gender" length="255"  nullable="true" comment="Customer Gender" />
+        <column xsi:type="decimal" name="subtotal" scale="4" precision="12" default="0" nullable="true" comment="Subtotal" />
+        <column xsi:type="decimal" name="base_subtotal" scale="4" precision="12" default="0" nullable="true" comment="Base Subtotal" />
+        <column xsi:type="decimal" name="subtotal_with_discount" scale="4" precision="12" default="0" nullable="true" comment="Subtotal With Discount" />
+        <column xsi:type="decimal" name="base_subtotal_with_discount" scale="4" precision="12" default="0" nullable="true" comment="Base Subtotal With Discount" />
+        <column xsi:type="int" name="is_changed" nullable="true" unsigned="true" comment="Is Changed" />
+        <column xsi:type="smallint" name="trigger_recollect" nullable="false" default="0" comment="Trigger Recollect" />
+        <column xsi:type="text" name="ext_shipping_info" nullable="true" comment="Ext Shipping Info" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id" />
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_STORE_ID_STORE_STORE_ID" table="msquote" column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="CASCADE" ></constraint>
+        <index referenceId="MSQUOTE_CUSTOMER_ID_STORE_ID_IS_ACTIVE" indexType="btree">
+            <column name="customer_id" />
+            <column name="store_id" />
+            <column name="is_active" />
+        </index>
+        <index referenceId="MSQUOTE_STORE_ID" indexType="btree">
+            <column name="store_id" />
+        </index>
+    </table>
+
+    <!--TABLE MSQUOTE_ADDRESS -->
+
+    <table name="msquote_address" resource="default" engine="innodb" comment="RecurringOrder Quote Address">
+        <column xsi:type="int" name="address_id" identity="true" unsigned="true" nullable="false" comment="Address Id"  />
+        <column xsi:type="int" name="msquote_id" unsigned="true" nullable="false" default="0" comment="Msquote Id" />
+        <column xsi:type="timestamp" on_update="false" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At" />
+        <column xsi:type="timestamp" on_update="true" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At" />
+        <column xsi:type="int" name="customer_id" unsigned="true" default="null" comment="Customer Id" />
+        <column xsi:type="int" name="customer_address_id" unsigned="true" default="null" comment="Customer Address Id" />
+        <column xsi:type="varchar" name="address_type" length="40" nullable="true" comment="Address Type" />
+        <column xsi:type="varchar" name="email" length="255" nullable="true" comment="Email" />
+        <column xsi:type="varchar" name="prefix" length="40" nullable="true" comment="Prefix" />
+        <column xsi:type="varchar" name="firstname" length="20" nullable="true" comment="Firstname" />
+        <column xsi:type="varchar" name="middlename" length="20" nullable="true" comment="Middlename" />
+        <column xsi:type="varchar" name="lastname" length="20" nullable="true" comment="Lastname" />
+        <column xsi:type="varchar" name="suffix" length="40" nullable="true" comment="Suffix" />
+        <column xsi:type="varchar" name="company" length="255" nullable="true" comment="Company" />
+        <column xsi:type="varchar" name="street" length="40" nullable="true" comment="Street" />
+        <column xsi:type="varchar" name="city" length="40" nullable="true" comment="City" />
+        <column xsi:type="varchar" name="region" length="40" nullable="true" comment="Region" />
+        <column xsi:type="int" name="region_id" unsigned="true" nullable="true" comment="Region Id" />
+        <column xsi:type="varchar" name="postcode" length="20" nullable="true" comment="Postcode" />
+        <column xsi:type="varchar" name="country_id" length="30" nullable="true" comment="Country Id" />
+        <column xsi:type="varchar" name="telephone" nullable="true" length="20" comment="Phone Number" />
+        <column xsi:type="varchar" name="fax" nullable="true" length="20" comment="Fax" />
+        <column xsi:type="smallint" name="same_as_billing" unsigned="true" nullable="false" default="0" comment="Same As Billing" />
+        <column xsi:type="smallint" name="collect_shipping_rates" unsigned="true" nullable="false" default="0" comment="Collect Shipping Rates" />
+        <column xsi:type="varchar" name="shipping_method" nullable="true" length="40" comment="Shipping Method" />
+        <column xsi:type="varchar" name="shipping_description" length="255" nullable="true" comment="Shipping Description" />
+        <column xsi:type="decimal" name="weight" scale="4" precision="12" nullable="false" default="0" comment="Weight" />
+        <column xsi:type="decimal" name="subtotal" scale="4" precision="12" nullable="false" default="0" comment="Subtotal" />
+        <column xsi:type="decimal" name="base_subtotal" scale="4" precision="12" nullable="false" default="0" comment="Base Subtotal" />
+        <column xsi:type="decimal" name="subtotal_with_discount" scale="4" precision="12" nullable="false" default="0" comment="Subtotal With Discount" />
+        <column xsi:type="decimal" name="base_subtotal_with_discount" scale="4" precision="12" nullable="false" default="0" comment="Base Subtotal With Discount" />
+        <column xsi:type="decimal" name="tax_amount" scale="4" precision="12" nullable="false" default="0" comment="Tax Amount" />
+        <column xsi:type="decimal" name="base_tax_amount" scale="4" precision="12" nullable="false" default="0" comment="Base Tax Amount" />
+        <column xsi:type="decimal" name="shipping_amount" scale="4" precision="12" nullable="false" default="0" comment="Shipping Amount" />
+        <column xsi:type="decimal" name="base_shipping_amount" scale="4" precision="12" nullable="false" default="0" comment="Base Shipping Amount" />
+        <column xsi:type="decimal" name="shipping_tax_amount" scale="4" precision="12" nullable="true" comment="Shipping Tax Amount" />
+        <column xsi:type="decimal" name="base_shipping_tax_amount" scale="4" precision="12" nullable="true" comment="Base Shipping Tax Amount" />
+        <column xsi:type="decimal" name="discount_amount" scale="4" precision="12" nullable="false" default="0" comment="Discount Amount" />
+        <column xsi:type="decimal" name="base_discount_amount" scale="4" precision="12" nullable="false" default="0" comment="Base Discount Amount" />
+        <column xsi:type="decimal" name="grand_total" scale="4" precision="12" nullable="false" default="0" comment="Grand Total" />
+        <column xsi:type="decimal" name="base_grand_total" scale="4" precision="12" nullable="false" default="0" comment="Base Grand Total" />
+        <column xsi:type="text" name="applied_taxes"  nullable="true" comment="Applied Taxes" />
+        <column xsi:type="varchar" name="discount_description" length="255" nullable="true" comment="Discount Description" />
+        <column xsi:type="decimal" name="subtotal_incl_tax" scale="4" precision="12" nullable="true" comment="Subtotal Incl Tax" />
+        <column xsi:type="decimal" name="base_subtotal_incl_tax" scale="4" precision="12" nullable="true" comment="Base Subtotal Incl Tax" />
+        <column xsi:type="decimal" name="shipping_incl_tax" scale="4" precision="12" nullable="true" comment="Shipping Incl Tax" />
+        <column xsi:type="decimal" name="base_shipping_incl_tax" scale="4" precision="12" nullable="true" comment="Base Shipping Incl Tax" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="address_id" />
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ADDRESS_MSQUOTE_ID_MSQUOTE_ENTITY_ID" table="msquote_address" column="msquote_id" referenceTable="msquote" referenceColumn="entity_id" onDelete="CASCADE" ></constraint>
+        <index referenceId="MSQUOTE_ADDRESS_MSQUOTE_ID" indexType="btree">
+            <column name="msquote_id" />
+        </index>
+    </table>
+
+    <!--TABLE MSQUOTE_ITEM -->
+
+    <table name="msquote_item" resource="default" engine="innodb" comment="RecurringOrder Quote Item">
+        <column xsi:type="int" unsigned="true" name="item_id" identity="true" nullable="false" comment="Item Id" />
+        <column xsi:type="int" name="msquote_id" unsigned="true" nullable="false" default="0" comment="MsQuote Id" />
+        <column xsi:type="timestamp" on_update="false" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At" />
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="true" comment="Product Id" />
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="true" comment="Store Id" />
+        <column xsi:type="int" name="parent_item_id" unsigned="true" nullable="true" comment="Parent Item Id" />
+        <column xsi:type="smallint" name="is_virtual" unsigned="true" nullable="true" comment="Is Virtual" />
+        <column xsi:type="varchar" name="sku" length="255" nullable="true" comment="Sku" />
+        <column xsi:type="varchar" name="name" length="255" nullable="true" comment="Name" />
+        <column xsi:type="text" name="description" comment="Description"  />
+        <column xsi:type="text" name="applied_rule_ids" comment="Applied Rule Ids" />
+        <column xsi:type="text" name="additional_data" comment="Additional Data" />
+        <column xsi:type="smallint" name="is_qty_decimal" unsigned="true" nullable="true" comment="Is Qty Decimal" />
+        <column xsi:type="smallint" name="no_discount" nullable="true" unsigned="true" default="0" comment="No Discount"  />
+        <column xsi:type="decimal" name="weight" scale="4" precision="12" default="0" comment="Weight" />
+        <column xsi:type="decimal" name="qty" nullable="false" default="0" comment="Qty" />
+        <column xsi:type="decimal" name="price" scale="4" precision="12" nullable="false" default="0" comment="Price" />
+        <column xsi:type="decimal" name="base_price" scale="4" precision="12" nullable="false" default="0" comment="Base Price" />
+        <column xsi:type="decimal" name="custom_price" scale="4" precision="12" nullable="true" comment="Custom Price" />
+        <column xsi:type="decimal" name="discount_percent" scale="4" precision="12" default="0" comment="Discount Percent" />
+        <column xsi:type="decimal" name="discount_amount" scale="4" precision="12" default="0" comment="Discount Amount" />
+        <column xsi:type="decimal" name="base_discount_amount" scale="4" precision="12" default="0" comment="Base Discount Amount" />
+        <column xsi:type="decimal" name="tax_percent" scale="4" precision="12" default="0" comment="Tax Percent" />
+        <column xsi:type="decimal" name="tax_amount" scale="4" precision="12" default="0" comment="Tax Amount" />
+        <column xsi:type="decimal" name="base_tax_amount" scale="4" precision="12" default="0" comment="Base Tax Amount" />
+        <column xsi:type="decimal" name="row_total" scale="4" precision="12" nullable="false" default="0" comment="Row Total" />
+        <column xsi:type="decimal" name="base_row_total" scale="4" precision="12" nullable="false" default="0" comment="Base Row Total" />
+        <column xsi:type="decimal" name="row_total_with_discount" scale="4" precision="12" default="0" comment="Row Total With Discount" />
+        <column xsi:type="decimal" name="row_weight" scale="4" precision="12" default="0" comment="Row Weight" />
+        <column xsi:type="varchar" name="product_type" length="255" nullable="true" comment="Product Type" />
+        <column xsi:type="decimal" name="base_tax_before_discount" scale="4" precision="12" nullable="true" comment="base_tax_before_discount" />
+        <column xsi:type="decimal" name="tax_before_discount" scale="4" precision="12" nullable="true" comment="Tax Before Discount" />
+        <column xsi:type="decimal" name="original_custom_price" scale="4" precision="12" nullable="true" comment="Original Custom Price" />
+        <column xsi:type="varchar" name="redirect_url" length="255" nullable="true" comment="Redirect Url" />
+        <column xsi:type="decimal" name="base_cost" scale="4" precision="12" nullable="true" comment="Base Cost" />
+        <column xsi:type="decimal" name="price_incl_tax" scale="4" precision="12" nullable="true" comment="Price Incl Tax" />
+        <column xsi:type="decimal" name="base_price_incl_tax" scale="4" precision="12" nullable="true" comment="Base Price Incl Tax" />
+        <column xsi:type="decimal" name="row_total_incl_tax" scale="4" precision="12" nullable="true" comment="Row Total Incl Tax" />
+        <column xsi:type="decimal" name="base_row_total_incl_tax" scale="4" precision="12" nullable="true" comment="Base Row Total Incl Tax" />
+        <column xsi:type="decimal" name="discount_tax_compensation_amount" scale="4" precision="12" nullable="true" comment="Discount Tax Compensation Amount" />
+        <column xsi:type="decimal" name="base_discount_tax_compensation_amount" scale="4" precision="12" nullable="true" comment="Base Discount Tax Compensation Amount" />
+        <column xsi:type="varchar" name="image" length="255" nullable="true" comment="Image" />
+        <column xsi:type="varchar" name="url" length="255" nullable="true" comment="Url" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="item_id" />
+        </constraint>
+        <index referenceId="MSQUOTE_ITEM_PARENT_ITEM_ID" indexType="btree">
+            <column name="parent_item_id" />
+        </index>
+        <index referenceId="MSQUOTE_ITEM_PRODUCT_ID" indexType="btree">
+            <column name="product_id" />
+        </index>
+        <index referenceId="MSQUOTE_ITEM_MSQUOTE_ID" indexType="btree">
+            <column name="msquote_id" />
+        </index>
+        <index referenceId="MSQUOTE_ITEM_STORE_ID" indexType="btree">
+            <column name="store_id" />
+        </index>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ITEM_MSQUOTE_ID_MSQUOTE_ENTITY_ID" table="msquote_item" column="msquote_id" referenceTable="msquote" referenceColumn="entity_id" onDelete="CASCADE" ></constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ITEM_PARENT_ITEM_ID_MSQUOTE_ITEM_ITEM_ID" table="msquote_item" column="parent_item_id" referenceTable="msquote_item" referenceColumn="item_id" onDelete="CASCADE" ></constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ITEM_STORE_ID_STORE_STORE_ID" table="msquote_item" column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="SET NULL"  ></constraint>
+    </table>
+
+    <!--TABLE MSQUOTE_ADDRESS_ITEM -->
+
+
+    <table name="msquote_address_item" resource="default" engine="innodb" comment="RecurringOrder Quote Address Item">
+        <column xsi:type="int" name="address_item_id" identity="true" unsigned="true" nullable="false" comment="Address Item Id" />
+        <column xsi:type="int" name="parent_item_id" nullable="true" unsigned="true" comment="Parent Item Id" />
+        <column xsi:type="int" name="msquote_address_id" unsigned="true" nullable="false" default="0" comment="MsQuote Address Id" />
+        <column xsi:type="int" name="msquote_item_id" unsigned="true" nullable="false" default="0" comment="MsQuote Item Id" />
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At" />
+        <column xsi:type="text" name="applied_rule_ids" nullable="true" comment="Applied Rule Ids" />
+        <column xsi:type="text" name="additional_data" nullable="true" comment="Additional Data" />
+        <column xsi:type="decimal" name="weight" scale="4" precision="12" default="0" comment="Weight" />
+        <column xsi:type="decimal" name="qty" scale="4" precision="12" default="0" nullable="false" comment="Qty" />
+        <column xsi:type="decimal" name="discount_amount" scale="4" precision="12" default="0" comment="Discount Amount" />
+        <column xsi:type="decimal" name="tax_amount" scale="4" precision="12" default="0" comment="Tax Amount" />
+        <column xsi:type="decimal" name="row_total" scale="4" precision="12" default="0" comment="Row Total" />
+        <column xsi:type="decimal" name="base_row_total" scale="4" precision="12" default="0" nullable="false" comment="Base Row Total" />
+        <column xsi:type="decimal" name="row_total_with_discount" scale="4" precision="12" default="0" comment="Row Total With Discount" />
+        <column xsi:type="decimal" name="base_discount_amount" scale="4" precision="12" default="0" comment="Base Discount Amount" />
+        <column xsi:type="decimal" name="base_tax_amount" scale="4" precision="12" default="0" comment="Base Tax Amount" />
+        <column xsi:type="decimal" name="row_weight" scale="4" precision="12" comment="Row Weight" default="0" />
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="true" comment="Product Id" />
+        <column xsi:type="int" name="super_product_id" unsigned="true" nullable="true" comment="Super Product Id" />
+        <column xsi:type="int" name="parent_product_id" nullable="true" unsigned="true" comment="Parent Product Id" />
+        <column xsi:type="varchar" name="sku" length="255" nullable="true" comment="Sku" />
+        <column xsi:type="varchar" name="image" length="255" nullable="true" comment="Image" />
+        <column xsi:type="varchar" name="name" length="255" comment="Name" nullable="true" />
+        <column xsi:type="text" name="description" comment="Description" nullable="true" />
+        <column xsi:type="int" name="is_qty_decimal" unsigned="true" nullable="true" comment="Is Qty Decimal" />
+        <column xsi:type="decimal" name="price" scale="4" precision="12" nullable="true" comment="Price" />
+        <column xsi:type="decimal" name="discount_percent" scale="4" precision="12" nullable="true" comment="Discount Percent" />
+        <column xsi:type="int" name="no_discount" unsigned="true" nullable="true" comment="No Discount" />
+        <column xsi:type="decimal" name="tax_percent" scale="4" precision="12" nullable="true" comment="Tax Percent" />
+        <column xsi:type="decimal" name="base_price" scale="4" precision="12" nullable="true" comment="Base Price" />
+        <column xsi:type="decimal" name="base_cost" scale="4" precision="12" nullable="true" comment="Base Cost" />
+        <column xsi:type="decimal" name="price_incl_tax" scale="4" precision="12" nullable="true" comment="Price Incl Tax" />
+        <column xsi:type="decimal" name="base_price_incl_tax" scale="4" precision="12" nullable="true" comment="Base Price Incl Tax" />
+        <column xsi:type="decimal" name="row_total_incl_tax" scale="4" precision="12" nullable="true" comment="Row Total Incl Tax" />
+        <column xsi:type="decimal" name="base_row_total_incl_tax" scale="4" precision="12" nullable="true" comment="Base Row Total Incl Tax" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="address_item_id" />
+        </constraint>
+        <index referenceId="MSQUOTE_ADDRESS_ITEM_MSQUOTE_ADDRESS_ID" indexType="btree">
+            <column name="msquote_address_id" />
+        </index>
+        <index referenceId="MSQUOTE_ADDRESS_ITEM_PARENT_ITEM_ID" indexType="btree">
+            <column name="parent_item_id" />
+        </index>
+        <index referenceId="MSQUOTE_ADDRESS_ITEM_MSQUOTE_ITEM_ID" indexType="btree">
+            <column name="msquote_item_id" />
+        </index>
+
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ADDR_ITEM_MSQUOTE_ADDR_ID_MSQUOTE_ADDR_ADDR_ID" table="msquote_address_item" column="msquote_address_id" referenceTable="msquote_address" referenceColumn="address_id" onDelete="CASCADE" ></constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ADDR_ITEM_PARENT_ITEM_ID_MSQUOTE_ADDR_ITEM_ADDR_ITEM_ID" table="msquote_address_item" column="parent_item_id" referenceTable="msquote_address_item" referenceColumn="address_item_id" onDelete="CASCADE" ></constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ADDRESS_ITEM_MSQUOTE_ITEM_ID_MSQUOTE_ITEM_ITEM_ID" table="msquote_address_item" column="msquote_item_id" referenceTable="msquote_item" referenceColumn="item_id" onDelete="CASCADE" ></constraint>
+
+    </table>
+
+
+    <!--RecurringOrder Quote Item Option -->
+
+
+    <table name="msquote_item_option" resource="default" engine="innodb" comment="RecurringOrder Quote Item Option">
+        <column xsi:type="int" name="option_id" identity="true" unsigned="true" nullable="false" comment="Option Id" />
+        <column xsi:type="int" name="item_id" unsigned="true" nullable="false" comment="Item Id" />
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product Id" />
+        <column xsi:type="varchar" name="code" length="255" nullable="false" comment="Code" />
+        <column xsi:type="text" name="value" nullable="true" comment="Value" />
+        <index referenceId="MSQUOTE_ITEM_OPTION_ITEM_ID" indexType="btree">
+            <column name="item_id" />
+        </index>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="option_id" />
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_ITEM_OPTION_ITEM_ID_MSQUOTE_ITEM_ITEM_ID" table="msquote_item_option" column="item_id" referenceTable="msquote_item" referenceColumn="item_id" onDelete="CASCADE" ></constraint>
+    </table>
+
+
+    <!--RecurringOrder Quote Payment -->
+
+    <table name="msquote_payment" resource="default" engine="innodb" comment="RecurringOrder Quote Payment">
+        <column xsi:type="int" name="payment_id" identity="true" unsigned="true" nullable="false" comment="Payment Id" />
+        <column xsi:type="int" name="msquote_id" unsigned="true" nullable="false" default="0" comment="RecurringOrder Quote Id" />
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at"  nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At" />
+        <column xsi:type="varchar" length="255" name="method" nullable="true" comment="Method" />
+        <column xsi:type="varchar" name="cc_type" length="255" nullable="true" comment="Cc Type"  />
+        <column xsi:type="varchar" length="255" name="cc_number_enc" nullable="true" comment="Cc Number Enc" />
+        <column xsi:type="varchar" length="255" name="cc_last_4" nullable="true" comment="Cc Last 4" />
+        <column xsi:type="varchar" length="255" name="cc_cid_enc" nullable="true" comment="Cc Cid Enc" />
+        <column xsi:type="varchar" length="255" name="cc_owner" nullable="true" comment="Cc Owner" />
+        <column xsi:type="varchar" length="255" name="cc_exp_month" nullable="true" comment="Cc Exp Month" />
+        <column xsi:type="smallint" name="cc_exp_year" nullable="true" unsigned="true" default="0" comment="Cc Exp Year" />
+        <column xsi:type="varchar" name="cc_ss_owner" length="255" nullable="true" comment="Cc Ss Owner" />
+        <column xsi:type="smallint" name="cc_ss_start_month" unsigned="true" default="0" nullable="true" comment="Cc Ss Start Month" />
+        <column xsi:type="smallint" name="cc_ss_start_year" nullable="true" unsigned="true" default="0" comment="Cc Ss Start Year" />
+        <column xsi:type="varchar" name="po_number" length="255" nullable="true" comment="Po Number" />
+        <column xsi:type="text" name="additional_data" comment="Additional Data" />
+        <column xsi:type="varchar" name="cc_ss_issue" length="255" nullable="true" comment="Cc Ss Issue"  />
+        <column xsi:type="text" name="additional_information" nullable="true" comment="Additional Information" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="payment_id" />
+        </constraint>
+        <index referenceId="MSQUOTE_PAYMENT_MSQUOTE_ID" indexType="btree">
+            <column name="msquote_id" />
+        </index>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_PAYMENT_MSQUOTE_ID_MSQUOTE_ENTITY_ID" table="msquote_payment" column="msquote_id" referenceTable="msquote" referenceColumn="entity_id" onDelete="CASCADE" ></constraint>
+    </table>
+
+
+    <!--RecurringOrder Quote Shipping Rate -->
+
+    <table name="msquote_shipping_rate" resource="default" engine="innodb" comment="RecurringOrder Quote Shipping Rate">
+        <column xsi:type="int" name="rate_id" identity="true" unsigned="true" nullable="false" comment="Rate Id" />
+        <column xsi:type="int" name="address_id" unsigned="true" nullable="false" default="0" comment="Address Id" />
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At" />
+        <column xsi:type="varchar" name="carrier" length="255" nullable="true" comment="Carrier" />
+        <column xsi:type="varchar" name="carrier_title" length="255" nullable="true" comment="Carrier Title"  />
+        <column xsi:type="varchar" name="code" length="255" nullable="true" comment="Code" />
+        <column xsi:type="varchar" name="method" length="255" nullable="true" comment="Method" />
+        <column xsi:type="text" name="method_description" nullable="true" comment="Method Description" />
+        <column xsi:type="decimal" name="price" scale="4" precision="12" nullable="false" default="0" comment="Price" />
+        <column xsi:type="text" name="error_message" nullable="true" comment="Error Message"  />
+        <column xsi:type="text" name="method_title" nullable="true" comment="Method Title" />
+        <index referenceId="MSQUOTE_SHIPPING_RATE_ADDRESS_ID" indexType="btree">
+            <column name="address_id" />
+        </index>
+        <constraint xsi:type="foreign" referenceId="MSQUOTE_SHIPPING_RATE_ADDRESS_ID_MSQUOTE_ADDRESS_ADDRESS_ID" table="msquote_shipping_rate" column="address_id" referenceTable="msquote_address" referenceColumn="address_id" onDelete="CASCADE" ></constraint>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="rate_id" />
+        </constraint>
+    </table>
+
+    <!--RecurringOrder Profile -->
+
+    <table name="msprofile" resource="default" engine="innodb" comment="RecurringOrder Profile">
+        <column xsi:type="int" name="profile_id" identity="true" unsigned="true" nullable="false" comment="Profile Id" />
+        <column xsi:type="int" name="msquote_id" unsigned="true" nullable="false" default="0" comment="RecurringOrder quote Id"  />
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At" />
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" default="0" comment="Store Id" />
+        <column xsi:type="timestamp" name="start_date" nullable="true" comment="Start Date" />
+        <column xsi:type="varchar"  name="name" length="255" nullable="true" comment="Name" />
+        <column xsi:type="varchar" name="type" length="255" nullable="true" comment="Type" />
+        <column xsi:type="varchar" name="type_x" length="255" nullable="true" comment="Type X" />
+        <column xsi:type="varchar" name="type_y" length="255" nullable="true" comment="Type Y" />
+        <column xsi:type="varchar" name="status" length="255" nullable="true" comment="Status"  />
+        <constraint xsi:type="primary" referenceId="PRIMARY"> 
+            <column name="profile_id" />
+        </constraint>
+        <index referenceId="MSPROFILE_MSQUOTE_ID" indexType="btree">
+            <column name="msquote_id" />
+        </index>
+        <index referenceId="MSPROFILE_STORE_ID" indexType="btree">
+            <column name="store_id" />
+        </index>
+        <constraint xsi:type="foreign" referenceId="MSPROFILE_MSQUOTE_ID_MSQUOTE_ENTITY_ID" table="msprofile" column="msquote_id" referenceTable="msquote" referenceColumn="entity_id" onDelete="CASCADE" ></constraint>
+
+        <constraint xsi:type="foreign" referenceId="MSPROFILE_STORE_ID_STORE_STORE_ID" table="msprofile" column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="CASCADE" ></constraint>
+    </table>
+
+    <!-- RecurringOrder Order -->
+    <table name="msorder" resource="default" engine="innodb" comment="RecurringOrder Order">
+        <column xsi:type="int" name="msorder_id" identity="true" unsigned="true" nullable="false" comment="RecurringOrder Order Id" />
+        <column xsi:type="int" name="msquote_id" unsigned="true" nullable="false" default="0" comment="RecurringOrder quote Id" />
+        <column xsi:type="varchar" name="order_id" nullable="true" length="255" comment="Sales Order" />
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Created At" />
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="msorder_id" />
+        </constraint>
+    </table>
+    
+</schema>

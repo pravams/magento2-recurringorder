@@ -1,0 +1,242 @@
+<div id="sales_order_view_tabs_order_info_content" style="" data-ui-id="sales-order-tabs-tab-content-order-info" aria-labelledby="sales_order_view_tabs_order_info" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-expanded="true" aria-hidden="false">
+    <section class="admin__page-section order-view-account-information">
+        <div class="admin__page-section-title">
+            <span class="title">Subscription Detail Information</span>
+        </div>
+        <?php $profile = $block->getProfile();
+        $msQuoteId = $profile->getMsquoteId();
+        $storeId = $profile->getStoreId();
+        $msQuote = $block->getMsQuote($msQuoteId);
+        ?>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-information">
+                <div class="admin__page-section-item-title">
+                    <span class="title">
+                        Susbscription Profile # <?= /* @noEscape */ $profile->getId();?>
+                    </span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <table class="admin__table-secondary order-information-table">
+                    <tbody>
+                        <tr>
+                            <th>Subscription Name</th>
+                            <td><?= /* @noEscape */ $profile->getName();?></td>
+                        </tr>
+                        <tr>
+                            <th>Subscription Frequency</th>
+                            <td>
+                                <?php
+                                if ($profile->getType() == "everyxy") {
+                                   $block->escapeHtmlAttr("Every "). /* @noEscape */ $profile->getTypeX()." ". /* @noEscape */ $profile->getTypeY();
+                                } else {
+                                   ?> <?= /* @noEscape */ $profile->getType();
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Subscription Start Date</th>
+                            <td><?= /* @noEscape */ $profile->getCreatedAt();?></td>
+                        </tr>
+                        <tr>
+                            <th>Subscription Status</th>
+                            <td>
+                                <input type="hidden" id="subscription_status_url" value="<?= $block->escapeUrl($block->getUrl('RecurringOrder/index/change'));?>">
+                                <input type="hidden" value="<?= /* @noEscape */ $profile->getProfileId();?>" name="subscription_id" id="subscription_id"/>
+                                <span id="subscription_status_content" style="display:none;">
+                                    <select id="subscription_status_content" name="subscription_status_content">
+                                        <option value="active">active</option>
+                                        <option value="inactive">inactive</option>
+                                        <option value="delete">delete</option>
+                                    </select>
+                                    <span id="subscription_status_action">
+                                        <a href="#" class="save">Save</a> | <a href="#" class="cancel">Cancel</a>
+                                    </span>
+                                </span>
+                                <span id="subscription_status">
+                                    <?= /* @noEscape */ $profile->getStatus();?> | <a href="#">Edit</a>
+                                </span>
+                                
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin__page-section order-addresses">
+        <div class="admin__page-section-title">
+            <span class="title">Address Information</span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-billing-address">
+                <div class="admin__page-section-item-title">
+                    <span class="title">Billing Address</span>
+                </div>
+                <address class="admin__page-section-item-content">
+                    <?php $billAdd = $block->getMsQuoteBillingAddress($msQuoteId);?>
+                    <?= /* @noEscape */ $billAdd->getFirstname()." "./* @noEscape */ $billAdd->getLastname()."<br />";?>
+                    <?= /* @noEscape */ implode("<br \>", json_decode($billAdd->getStreet()))."<br />";?>
+                    <?= /* @noEscape */ $billAdd->getCity().", "./* @noEscape */ $billAdd->getRegion().", "./* @noEscape */ $billAdd->getPostcode()."<br />";?>
+                    <?= /* @noEscape */ $billAdd->getCountryId()."<br />";?>
+                    <?= /* @noEscape */ "T: <a href=\"tel:"./* @noEscape */ $billAdd->getTelephone()."\">". /* @noEscape */ $billAdd->getTelephone()."</a>";
+                    ?>
+                </address>
+            </div>
+            <div class="admin__page-section-item order-shipping-address">
+                <div class="admin__page-section-item-title">
+                    <span class="title">Shipping Address</span>
+                </div>
+                <address class="admin__page-section-item-content">
+                    <?php $shipAdd = $block->getMsQuoteShippingAddress($msQuoteId);?>
+                    <?= /* @noEscape */ $shipAdd->getFirstname()." ". /* @noEscape */ $shipAdd->getLastname()."<br />";?>
+                    <?= /* @noEscape */  implode("<br \>", json_decode($shipAdd->getStreet()))."<br />";?>
+                    <?= /* @noEscape */ $shipAdd->getCity().", "./* @noEscape */ $shipAdd->getRegion().", "./* @noEscape */ $shipAdd->getPostcode()."<br />";?>
+                    <?= /* @noEscape */ $shipAdd->getCountryId()."<br />";?>
+                    <?= /* @noEscape */ "T: <a href=\"tel:"./* @noEscape */ $shipAdd->getTelephone()."\">". /* @noEscape */ $shipAdd->getTelephone()."</a>";
+                    ?>
+                </address>
+            </div>
+        </div>
+    </section>
+    
+    <section class="admin__page-section order-view-billing-shipping">
+        <div class="admin__page-section-title">
+            <span class="title">Payment &amp; Shipping Method</span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-payment-method">
+                <div class="admin__page-section-item-title">
+                    <span class="title">Payment Information</span>
+                </div>
+                <?php $msQuotePayment = $block->getPaymentMethod($msQuoteId);?>
+                <div class="admin__page-section-item-content">
+                    <div class="order-payment-method-title"><p><?= /* @noEscape */ $msQuotePayment->getAdditionalData();?></p></div>
+                    <div class="order-payment-currency">The order was placed using <?= /* @noEscape */ $msQuote->getBaseCurrencyCode();?>.</div>
+                </div>
+            </div>
+            <div class="admin__page-section-item order-shipping-method">
+                <div class="admin__page-section-item-title">
+                    <span class="title">Shipping &amp; Handling Information</span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <strong><?= /* @noEscape */ $shipAdd->getShippingDescription();?></strong>
+                    <?= /* @noEscape */ $block->displayPrice($storeId, $shipAdd->getShippingAmount());?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title">Items Ordered</span>
+        </div>
+        <div class="admin__table-wrapper">
+            <table class="data-table admin__table-primary edit-order-table">
+                <thead>
+                    <tr class="headings">
+                        <th class="col-product"><span>Product</span></th>
+                        <th class="col-price"><span>Price</span></th>
+                        <th class="col-ordered-qty"><span>Qty</span></th>
+                        <th class="col-subtotal"><span>Subtotal</span></th>
+                        <th class="col-total last"><span>Row Total</span></th>
+                    </tr>
+                </thead>
+                <tbody class="even">
+                    <?php $msItems = $block->getMsQuoteItems($msQuoteId);
+                    foreach ($msItems as $_msItem) {
+                        ?>
+                        <tr>
+                            <td class="col-product">
+                                <div id="order_item_27">
+                                    <div id="order_item_27_title" class="product-title"><?= /* @noEscape */ $_msItem->getName()?></div>
+                                    <div class="product-sku-block"><span>SKU:</span> <?=  /* @noEscape */ $_msItem->getSku()?></div>
+                                </div>
+                            </td>
+                            <td class="col-price">
+                                <div class="price-excl-tax"><?= /* @noEscape */ $block->displayPrice($storeId, $_msItem->getPrice());?></div>
+                            </td>
+                            <td class="col-ordered-qty">
+                               <?= /* @noEscape */ round($_msItem->getQty());?>
+                            </td>
+                            <td class="col-subtotal">
+                                <div class="price-excl-tax">
+                                    <?= /* @noEscape */ $block->displayPrice($storeId, $_msItem->getRowTotal());?>
+                                </div>
+                            </td>
+                            <td class="col-total last">
+                                <?= /* @noEscape */ $block->displayPrice($storeId, $_msItem->getRowTotal());?>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title">Order Summary</span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-comments-history">
+                <div id="order_history_block" class="edit-order-comments">
+                    <div class="order-history-block" id="history_form">
+                        <div class="admin__field">
+                            <label for="history_status" class="admin__field-label">Orders Placed</label>
+                            <?php $msOrders = $block->getMsOrders($msQuoteId);
+                            if (count($msOrders)>0) {
+                                foreach ($msOrders as $_msOrder) {
+                                    echo "<div>Order Id: <a href=\"".$block->escapeUrl($block->getUrl('sales/order/view/order_id/'.$_msOrder->getOrderId()))."\">"; ?>
+                                    <?=  /* @noEscape */ $_msOrder->getOrderId()."</a></div>";
+                                }
+                            } else {
+                                echo "None";
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin__page-section-item order-totals">
+                <div class="admin__page-section-item-title">
+                    <span class="title">Order Totals</span>
+                </div>
+                <table class="data-table admin__table-secondary order-subtotal-table">    
+                    <tfoot>
+                        <tr class="col-0">
+                            <td class="label">
+                                <strong>Grand Total</strong>
+                            </td>
+                            <td>
+                                <strong><?=  /* @noEscape */ $block->displayPrice($storeId, $msQuote->getGrandTotal());?></strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        <tr class="col-0">
+                            <td class="label">Subtotal</td>
+                            <td><span><?=  /* @noEscape */ $block->displayPrice($storeId, $msQuote->getSubtotal());?></span></td>
+                        </tr>
+                        <tr class="col-1">
+                            <td class="label">Shipping &amp; Handling</td>
+                            <td>
+                                <span><?=  /* @noEscape */ $block->displayPrice($storeId, $shipAdd->getShippingAmount());?></span>
+                            </td>
+                        </tr>
+                        <tr class="col-2">
+                            <td class="label">Tax</td>
+                            <td>
+                                <span><?=  /* @noEscape */ $block->displayPrice($storeId, $msQuote->getBaseSubtotal());?></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
+    <container name="root">
+        <block class="Pravams\RecurringOrder\Block\Backend\Widget\Grid" name="customer.RecurringOrder.edit.tab">
+            <arguments>
+                <argument name="dataSource" xsi:type="object">Pravams\RecurringOrder\Model\ResourceModel\MsProfile\Collection</argument>
+                <argument name="id" xsi:type="string">RecurringOrderGrid</argument>
+                <argument name="use_ajax" xsi:type="string">true</argument>
+                <argument name="default_sort" xsi:type="string">created_at</argument>
+                <argument name="grid_url" xsi:type="url" path="RecurringOrder/index/RecurringOrder">
+                    <param name="_current">1</param>
+                </argument>
+            </arguments>
+            <block class="Pravams\RecurringOrder\Block\Backend\Widget\Grid\ColumnSet" as="grid.columnSet" name="customer.RecurringOrder.edit.tab.columnSet">
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="profile_id">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">Subscription Id</argument>
+                        <argument name="id" xsi:type="string">profile_id</argument>
+                        <argument name="index" xsi:type="string">profile_id</argument>
+                        <argument name="column_css_class" xsi:type="string">col-name</argument>
+                        <argument name="header_css_class" xsi:type="string">col-name</argument>
+                    </arguments>
+                </block>
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="name">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">Subscription Name</argument>
+                        <argument name="index" xsi:type="string">name</argument>
+                        <argument name="id" xsi:type="string">name</argument>
+                    </arguments>
+                </block>
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="type">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">Subscription Frequency</argument>
+                        <argument name="index" xsi:type="string">type</argument>
+                        <argument name="id" xsi:type="string">type</argument>
+                        <argument name="renderer" xsi:type="string">Pravams\RecurringOrder\Block\Adminhtml\Edit\Tab\Renderer\Item</argument>
+                    </arguments>
+                </block>
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="status">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">status</argument>
+                        <argument name="index" xsi:type="string">status</argument>
+                        <argument name="id" xsi:type="string">status</argument>
+                    </arguments>
+                </block>
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="created_at">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">Start Date</argument>
+                        <argument name="index" xsi:type="string">created_at</argument>
+                        <argument name="gmtoffset" xsi:type="string">1</argument>
+                        <argument name="type" xsi:type="string">date</argument>
+                        <argument name="id" xsi:type="string">created_at</argument>
+                    </arguments>
+                </block>
+                <block class="Magento\Backend\Block\Widget\Grid\Column" as="msquote_id">
+                    <arguments>
+                        <argument name="header" xsi:type="string" translate="true">Action</argument>
+                        <argument name="index" xsi:type="string">msquote_id</argument>
+                        <argument name="id" xsi:type="string">msquote_id</argument>
+                        <argument name="renderer" xsi:type="string">Pravams\RecurringOrder\Block\Adminhtml\Edit\Tab\Renderer\Item\View</argument>
+                    </arguments>
+                </block>
+            </block>
+        </block>
+    </container>
+</layout>
